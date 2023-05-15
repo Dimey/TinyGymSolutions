@@ -84,17 +84,17 @@ class PGPE:
         return np.concatenate(((s[:6] - self.s_mean) / self.s_std, s[6:]))
 
     def run_episode(self, seed=None):
-        total_reward = 0
+        episodic_reward = 0
         states = self.env.reset(seed=seed)[0]
 
         while True:
             action_prob = self.policy.forward(self.norm_states(states))
             action = np.random.choice(range(len(action_prob)), p=action_prob)
             states, reward, terminated, truncated, _ = self.env.step(action)
-            total_reward += reward
+            episodic_reward += reward
             if terminated or truncated:
                 break
-        return total_reward
+        return episodic_reward
 
     def update(self, perturb, fit):
         reward = max(fit)
@@ -107,13 +107,13 @@ class PGPE:
         else:
             mu_grad = 0.0
         std_grad = (reward - self.baseline) / (self.best - self.baseline)
-        self.baseline = 0.95 * self.baseline + 0.05 * reward
+        self.baseline = 0.9 * self.baseline + 0.1 * reward
 
         self.mu += self.learn_rate * mu_grad * perturb
 
         if std_grad > 0.0:  # updates only if that leads to better results
-            dif = perturb**2 - self.sigma**2
-            self.sigma += self.learn_rate / 2 * std_grad * dif / self.sigma
+            expl = perturb**2 - self.sigma**2  # extend/shrink the search space
+            self.sigma += self.learn_rate / 2 * std_grad * expl / self.sigma
 
     def learn(self, iterations):
         fit = np.zeros(2)
@@ -121,9 +121,9 @@ class PGPE:
         for i in (pbar := trange(iterations, bar_format=fmt)):
             perturb = np.random.randn(self.p_count) * self.sigma
             seed = np.random.randint(10_000)
-            policy.set_weights(self.mu + perturb)
+            self.policy.set_weights(self.mu + perturb)
             fit[0] = self.run_episode(seed)
-            policy.set_weights(self.mu - perturb)
+            self.policy.set_weights(self.mu - perturb)
             fit[1] = self.run_episode(seed)
             pbar.unit = f"{self.baseline:>6.1f}"
 
