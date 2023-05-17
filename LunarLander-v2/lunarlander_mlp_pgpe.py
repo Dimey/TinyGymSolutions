@@ -120,7 +120,7 @@ class PGPE:
         fit = np.zeros(2)
         fmt = "{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} | Baseline: {unit}"
         for i in (pbar := trange(iterations, bar_format=fmt)):
-            perturb = np.random.randn(self.p_count) * self.sigma
+            perturb = np.random.normal(0, self.sigma, self.p_count)
             seed = np.random.randint(10_000)
             self.policy.set_weights(self.mu + perturb)
             fit[0] = self.run_episode(seed)

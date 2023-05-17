@@ -99,8 +99,7 @@ class PGPE:
         else:
             mu_grad = 0.0
         std_grad = (reward - self.baseline) / (self.best - self.baseline)
-        std_grad = np.clip(std_grad, -1.0, 1.0)
-        self.baseline = 0.9 * self.baseline + 0.05 * sum(fit)
+        self.baseline = 0.9 * self.baseline + 0.1 * reward
 
         self.mu += self.learn_rate * mu_grad * perturb
 
@@ -112,7 +111,7 @@ class PGPE:
         fit = np.zeros(2)
         fmt = "{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} | Baseline: {unit}"
         for i in (pbar := trange(iterations, bar_format=fmt)):
-            perturb = np.random.randn(self.p_count) * self.sigma
+            perturb = np.random.normal(0, self.sigma, self.p_count)
             seed = np.random.randint(10_000)
             self.policy.set_weights(self.mu + perturb)
             fit[0] = self.run_episode(seed)
