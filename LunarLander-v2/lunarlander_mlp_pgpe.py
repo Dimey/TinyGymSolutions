@@ -89,7 +89,7 @@ class PGPE:
 
         while True:
             action_prob = self.policy.forward(self.norm_states(states))
-            action = np.random.choice(range(len(action_prob)), p=action_prob)
+            action = np.random.choice(len(action_prob), p=action_prob)
             states, reward, terminated, truncated, _ = self.env.step(action)
             episodic_reward += reward
             if terminated or truncated:
@@ -107,7 +107,8 @@ class PGPE:
         else:
             mu_grad = 0.0
         std_grad = (reward - self.baseline) / (self.best - self.baseline)
-        self.baseline = 0.9 * self.baseline + 0.1 * reward
+        std_grad = np.clip(std_grad, -1.0, 1.0)
+        self.baseline = 0.9 * self.baseline + 0.05 * sum(fit)
 
         self.mu += self.learn_rate * mu_grad * perturb
 
