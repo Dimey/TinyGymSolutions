@@ -73,7 +73,7 @@ class PGPE:
         self.p_count = len(self.mu)
         self.sigma = np.ones(self.p_count) * 2
         self.baseline = -250.0
-        self.best = -300.0
+        self.best = -np.inf
         self.learn_rate = 0.2
 
         # State stats were obtained by a previous run with random actions:

@@ -72,7 +72,7 @@ class PGPE:
         self.p_count = len(self.mu)
         self.sigma = np.ones(self.p_count) * 2
         self.baseline = 0.0
-        self.best = -1.0
+        self.best = -np.inf
         self.learn_rate = 0.2
 
     def run_episode(self, seed=None):
