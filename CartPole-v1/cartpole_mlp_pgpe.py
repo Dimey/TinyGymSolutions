@@ -29,7 +29,7 @@ class MLP:
     def __init__(self, topo):
         self.layers = []
         for i in range(len(topo) - 1):
-            W = np.random.randn(topo[i + 1], topo[i]) / np.sqrt(topo[i])
+            W = np.random.randn(topo[i + 1], topo[i]) / np.sqrt(topo[i]) * (5 / 3)
             b = np.random.randn(topo[i + 1]) / np.sqrt(topo[i])
             self.layers.append((W, b))
 
@@ -99,7 +99,7 @@ class PGPE:
         else:
             mu_grad = 0.0
         std_grad = (reward - self.baseline) / (self.best - self.baseline)
-        self.baseline = 0.9 * self.baseline + 0.1 * reward
+        self.baseline = 0.9 * self.baseline + 0.05 * sum(fit)
 
         self.mu += self.learn_rate * mu_grad * perturb
 
