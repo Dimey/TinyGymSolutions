@@ -6,7 +6,7 @@ The aim is to explore less orthodox solutions and paradigms, all while keeping t
 
 ## Prerequisites
 
-All you need to run these solutions is Python 3, and the following Python libraries:
+All you need to run these solutions is Python and Swig (install via `brew install swig` in your terminal), and the following Python libraries:
 - numpy
 - gym
 
