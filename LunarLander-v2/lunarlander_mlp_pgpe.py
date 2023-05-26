@@ -22,7 +22,7 @@ Happy Landing!
 
 import numpy as np
 import gymnasium as gym
-from tqdm import tqdm, trange
+from tqdm import trange
 
 
 class MLP:
