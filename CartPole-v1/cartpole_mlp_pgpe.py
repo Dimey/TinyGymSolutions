@@ -7,7 +7,7 @@ Author: Dimitri Haas
 Version: 1.0
 Date: 15.05.23
 
-This script trains a cart pole agent using a variant of the Policy Gradients with Parameter-based Exploration (PGPE) algorithm. 
+This script trains a cart pole agent using a variant of the Policy Gradients with Parameter-based Exploration (PGPE) algorithm.
 The variant used is called SyS-PGPE, originally proposed by Frank Sehnke.
 
 The agent's policy is a Multi-Layer Perceptron (MLP) with a softmax output layer.
@@ -20,6 +20,7 @@ Happy Balancing!
 
 """
 
+from dataclasses import dataclass
 import numpy as np
 import gymnasium as gym
 from tqdm import trange
@@ -85,8 +86,7 @@ class PGPE:
             states, reward, terminated, truncated, _ = self.env.step(action)
             episodic_reward += reward
             if terminated or truncated:
-                break
-        return episodic_reward
+                return episodic_reward
 
     def update(self, perturb, fit):
         reward = max(fit)
@@ -95,10 +95,10 @@ class PGPE:
             self.best = reward
 
         if fit[0] != fit[1]:
-            mu_grad = (fit[0] - fit[1]) / (2 * self.best - fit[0] - fit[1])
+            mu_grad = (fit[0] - fit[1]) / (2 * self.best - fit[0] - fit[1] + 1e-8)
         else:
             mu_grad = 0.0
-        std_grad = (reward - self.baseline) / (self.best - self.baseline)
+        std_grad = (reward - self.baseline) / (self.best - self.baseline + 1e-8)
         self.baseline = 0.9 * self.baseline + 0.05 * sum(fit)
 
         self.mu += self.learn_rate * mu_grad * perturb
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     train = True
     env = gym.make("CartPole-v1", render_mode="rgb_array" if train else "human")
     obs_space = env.observation_space.shape[0]  # type: ignore
-    policy = MLP([obs_space, 16, 1])
+    policy = MLP([obs_space, 8, 1])
     agent = PGPE(env, policy)
 
     if train:
